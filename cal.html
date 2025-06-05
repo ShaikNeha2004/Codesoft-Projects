@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator with Formulas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            display: grid;
+            grid-template-rows: 1fr 3fr;
+            gap: 10px;
+        }
+
+        .display {
+            background-color: #222;
+            color: #fff;
+            font-size: 2rem;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: right;
+            grid-row: 1;
+            overflow-x: auto;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            grid-row: 2;
+        }
+
+        .button {
+            background-color: #444;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .button:active {
+            background-color: #666;
+        }
+
+        .button.clear {
+            background-color: #e74c3c;
+        }
+
+        .button.equals {
+            background-color: #2ecc71;
+            grid-column: span 2;
+        }
+
+        .button.backspace {
+            background-color: #f39c12;
+        }
+
+        .button.trig {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+        <button class="button clear" id="clear">C</button>
+        <button class="button backspace" id="backspace">←</button>
+        <button class="button" id="divide">/</button>
+        <button class="button" id="multiply">*</button>
+
+        <button class="button" id="7">7</button>
+        <button class="button" id="8">8</button>
+        <button class="button" id="9">9</button>
+        <button class="button" id="subtract">-</button>
+
+        <button class="button" id="4">4</button>
+        <button class="button" id="5">5</button>
+        <button class="button" id="6">6</button>
+        <button class="button" id="add">+</button>
+
+        <button class="button" id="1">1</button>
+        <button class="button" id="2">2</button>
+        <button class="button" id="3">3</button>
+        <button class="button equals" id="equals">=</button>
+
+        <button class="button" id="0">0</button>
+        <button class="button" id="decimal">.</button>
+        
+        <!-- Trigonometric Functions -->
+        <button class="button trig" id="sin">sin</button>
+        <button class="button trig" id="cos">cos</button>
+        <button class="button trig" id="tan">tan</button>
+
+        <!-- Additional Formula Buttons -->
+        <button class="button trig" id="pythagorean">Pythagorean</button>
+        <button class="button trig" id="circle-area">Area of Circle</button>
+        <button class="button trig" id="triangle-area">Area of Triangle</button>
+    </div>
+</div>
+
+<script>
+    let display = document.getElementById("display");
+    let currentInput = "";
+    let operator = "";
+    let firstOperand = null;
+    let secondOperand = null;
+    let isDecimal = false;
+
+    // Handle number buttons
+    function handleNumber(number) {
+        if (currentInput === "0") {
+            currentInput = number;
+        } else {
+            currentInput += number;
+        }
+        display.textContent = currentInput;
+    }
+
+    // Handle decimal point
+    function handleDecimal() {
+        if (!isDecimal) {
+            currentInput += '.';
+            isDecimal = true;
+            display.textContent = currentInput;
+        }
+    }
+
+    // Handle operator buttons
+    function handleOperator(op) {
+        if (firstOperand === null) {
+            firstOperand = parseFloat(currentInput);
+            currentInput = "";
+            isDecimal = false;
+            operator = op;
+        } else {
+            secondOperand = parseFloat(currentInput);
+            firstOperand = performCalculation();
+            currentInput = "";
+            isDecimal = false;
+            operator = op;
+        }
+    }
+
+    // Perform calculation based on operator
+    function performCalculation() {
+        switch (operator) {
+            case "+":
+                return firstOperand + secondOperand;
+            case "-":
+                return firstOperand - secondOperand;
+            case "*":
+                return firstOperand * secondOperand;
+            case "/":
+                return firstOperand / secondOperand;
+            default:
+                return firstOperand;
+        }
+    }
+
+    // Handle clear button
+    function clear() {
+        currentInput = "0";
+        firstOperand = null;
+        secondOperand = null;
+        operator = "";
+        isDecimal = false;
+        display.textContent = currentInput;
+    }
+
+    // Handle equals button
+    function equals() {
+        if (firstOperand !== null && currentInput !== "") {
+            secondOperand = parseFloat(currentInput);
+            let result = performCalculation();
+            display.textContent = result;
+            currentInput = result.toString();
+            firstOperand = null;
+            secondOperand = null;
+            operator = "";
+            isDecimal = false;
+        }
+    }
+
+    // Handle backspace
+    function backspace() {
+        if (currentInput.length > 1) {
+            currentInput = currentInput.slice(0, -1);
+            display.textContent = currentInput;
+        } else {
+            currentInput = "0";
+            display.textContent = currentInput;
+        }
+    }
+
+    // Trigonometric Functions
+    function trigFunction(func) {
+        if (currentInput) {
+            let angle = parseFloat(currentInput);
+            let result = 0;
+
+            switch (func) {
+                case "sin":
+                    result = Math.sin(angle * Math.PI / 180); // Convert degrees to radians
+                    break;
+                case "cos":
+                    result = Math.cos(angle * Math.PI / 180);
+                    break;
+                case "tan":
+                    result = Math.tan(angle * Math.PI / 180);
+                    break;
+            }
+            display.textContent = result;
+            currentInput = result.toString();
+        }
+    }
+
+    // Additional Formulas
+    function pythagoreanTheorem() {
+        let a = parseFloat(prompt("Enter side a:"));
+        let b = parseFloat(prompt("Enter side b:"));
+        let c = Math.sqrt(a * a + b * b);
+        display.textContent = `Hypotenuse: ${c}`;
+    }
+
+    function areaOfCircle() {
+        let radius = parseFloat(prompt("Enter the radius of the circle:"));
+        let area = Math.PI * radius * radius;
+        display.textContent = `Area: ${area}`;
+    }
+
+    function areaOfTriangle() {
+        let base = parseFloat(prompt("Enter the base of the triangle:"));
+        let height = parseFloat(prompt("Enter the height of the triangle:"));
+        let area = 0.5 * base * height;
+        display.textContent = `Area: ${area}`;
+    }
+
+    // Adding event listeners for buttons
+    document.getElementById("clear").addEventListener("click", clear);
+    document.getElementById("equals").addEventListener("click", equals);
+    document.getElementById("divide").addEventListener("click", () => handleOperator("/"));
+    document.getElementById("multiply").addEventListener("click", () => handleOperator("*"));
+    document.getElementById("subtract").addEventListener("click", () => handleOperator("-"));
+    document.getElementById("add").addEventListener("click", () => handleOperator("+"));
+
+    // Backspace button
+    document.getElementById("backspace").addEventListener("click", backspace);
+
+    // Decimal point button
+    document.getElementById("decimal").addEventListener("click", handleDecimal);
+
+    // Trigonometric functions
+    document.getElementById("sin").addEventListener("click", () => trigFunction("sin"));
+    document.getElementById("cos").addEventListener("click", () => trigFunction("cos"));
+    document.getElementById("tan").addEventListener("click", () => trigFunction("tan"));
+
+    // Additional formula buttons
+    document.getElementById("pythagorean").addEventListener("click", pythagoreanTheorem);
+    document.getElementById("circle-area").addEventListener("click", areaOfCircle);
+    document.getElementById("triangle-area").addEventListener("click", areaOfTriangle);
+
+    // Number buttons
+    const numberButtons = document.querySelectorAll(".button:not(.clear):not(.equals):not(.operator):not(.backspace):not(#decimal):not(.trig)");
+    numberButtons.forEach(button => {
+        button.addEventListener("click", () => handleNumber(button.textContent));
+    });
+</script>
+
+</body>
+</html>
